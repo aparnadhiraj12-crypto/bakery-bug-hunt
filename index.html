@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aparna and Co. Bakery</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥐</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e6eff5;--ink:#14212b;--muted:#566876;--card:#fff;--line:#c9d8e2;--accent:#f0a500;--accent-ink:#2b1d00;--ok:#17703f;--bad:#b3261e;--navy:#14304a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif;padding-bottom:96px}
+.top{background:var(--navy);color:#fff}
+.top-in{max-width:980px;margin:0 auto;padding:22px 16px 26px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{font:800 clamp(2rem,6vw,3.3rem)/1 "Fraunces",Georgia,serif;margin:0}
+.top p{margin:8px 0 0;color:#b9cddd;max-width:34ch}
+.badge{background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:999px;padding:8px 16px;white-space:nowrap}
+main{max-width:980px;margin:22px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+h2{font:600 1.35rem "Fraunces",Georgia,serif;margin:0 0 12px}
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.tile{height:150px;display:grid;place-items:center;font-size:3rem;overflow:hidden}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.item .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:2px;flex:1}
+.item .desc{color:var(--muted);font-size:.88rem;flex:1}
+.item .buy{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.price{font-weight:700}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--ink);background:var(--card);color:var(--ink);padding:7px 13px;font-weight:500;transition:background .15s,transform .1s}
+button:hover{background:var(--ink);color:#fff}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.primary:hover{background:#c98900;color:var(--accent-ink)}
+aside{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;position:sticky;top:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.row .name{flex:1}.row small{color:var(--muted)}
+.qty{display:flex;align-items:center;gap:8px}.qty button{padding:1px 10px}
+.empty{color:var(--muted);padding:8px 0}
+.coupon{display:flex;gap:8px;margin:14px 0 4px}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--ink);border-radius:8px;width:100%;background:#fff;color:var(--ink)}
+.coupon input{flex:1;min-width:0}
+.msg{min-height:1.4em;font-size:.9rem;margin:4px 0 8px}.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.total{display:flex;justify-content:space-between;font:800 1.5rem "Fraunces",Georgia,serif;margin:8px 0 14px}
+.actions{display:flex;gap:8px}.actions .primary{flex:1}
+footer{max-width:980px;margin:36px auto 0;padding:0 16px;color:var(--muted);font-size:.92rem;display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--ink)}
+.fab{position:fixed;right:16px;bottom:16px;background:var(--ink);color:#fff;border-radius:999px;padding:12px 20px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:5}
+.fab:hover{background:#000}
+dialog{border:0;border-radius:14px;padding:22px;width:min(440px,92vw);color:var(--ink)}
+dialog::backdrop{background:rgba(10,20,30,.55)}
+dialog h2{margin-bottom:4px}dialog p{margin:0 0 12px;color:var(--muted);font-size:.92rem}
+label{display:block;font-weight:500;margin:10px 0 4px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.hp{position:absolute;left:-9999px}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+.toast.show{opacity:1;transform:translateX(-50%)}
+#host{display:none;max-width:980px;margin:28px auto 0;background:#fff3cd;border:2px solid var(--accent);border-radius:14px;padding:14px 18px}
+body.host #host{display:block}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <div><h1>Aparna and Co. Bakery</h1><p>Baked at 5am, gone by noon. Build your box and check out.</p></div>
+  <div class="badge" id="badge">Cart: 0 items</div>
+</div></div>
+
+<main>
+  <section><h2>Today's menu</h2><div class="menu" id="menu"></div></section>
+  <aside aria-label="Your cart">
+    <h2>Your cart</h2>
+    <div id="cart"></div>
+    <div class="coupon">
+      <input id="code" type="text" placeholder="Coupon (try SAVE10, any case)" aria-label="Coupon code">
+      <button id="apply">Apply</button>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+    <div class="total"><span>Total</span><span id="total">₹0</span></div>
+    <div class="actions"><button id="clear">Clear cart</button><button id="checkout" class="primary">Checkout</button></div>
+  </aside>
+</main>
+
+<footer>
+  <a href="mailto:hello@aparnaandco.example">Email us</a>
+  <a href="order-status.html">Track your order</a>
+  <span>Open 7am to 7pm, every day.</span>
+</footer>
+
+<section id="host">
+  <h2>Host cheat sheet</h2>
+  <p><b>Easy:</b><br>1. "Clear cart" does nothing.<br>2. "Track your order" (footer) goes to a 404 page.</p>
+  <p><b>Medium:</b><br>3. Total counts the Cake slice once, however many are added (add 2+).<br>4. The "Cart: N items" badge counts different products, not quantities (add 2 croissants: it says 1).</p>
+  <p><b>Tricky:</b><br>5. "Apply" with an empty coupon box shows "undefined% off applied" and the total becomes ₹NaN.<br>6. "save10" in lowercase is rejected, although the box says any case works. "SAVE10" works.</p>
+  <p>Reports (name, USN, where, what) arrive in Netlify: Site, Forms, bug-report. Sort by time to see who was first for each bug.</p>
+</section>
+
+<button class="fab" id="report">Found a bug? <span id="rc"></span></button>
+
+<dialog id="dlg">
+  <form name="bug-report" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="bugform">
+    <input type="hidden" name="form-name" value="bug-report">
+    <p class="hp"><label>Leave empty <input name="bot-field"></label></p>
+    <h2>Report a bug</h2>
+    <p>Be specific. The first correct report for each bug wins.</p>
+    <label for="who">Your name</label>
+    <input id="who" name="name" required maxlength="40" autocomplete="name">
+    <label for="usn">USN</label>
+    <input id="usn" name="usn" required minlength="8" maxlength="12" pattern="[A-Za-z0-9]{8,12}" autocapitalize="characters" autocomplete="off" placeholder="e.g. 24BTRSN004" style="text-transform:uppercase">
+    <label for="where">Where did it happen?</label>
+    <select id="where" name="where"><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
+    <label for="what">What went wrong?</label>
+    <textarea id="what" name="what" rows="3" required maxlength="300" placeholder="I did this... and expected this... but got this..."></textarea>
+    <div class="msg" id="fmsg" role="status"></div>
+    <div class="dlg-actions">
+      <button type="button" id="cancel">Close</button>
+      <button type="submit" class="primary" id="send">Send report</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const products=[
+  {id:"croissant",name:"Butter croissant",emoji:"🥐",price:80,tint:"#fde9b8",desc:"Laminated 27 times."},
+  {id:"coffee",name:"Filter coffee",emoji:"☕",price:120,tint:"#e8d7c9",desc:"South Indian style."},
+  {id:"cookie",name:"Choco chip cookie",emoji:"🍪",price:60,tint:"#f4dcc4",desc:"Crisp edge, soft middle."},
+  {id:"cake",name:"Cake slice",emoji:"🍰",price:150,tint:"#fbd5e0",desc:"Strawberry cream."},
+  {id:"bun",name:"Cinnamon bun",emoji:"🥯",price:90,tint:"#f7e2b0",desc:"Warm, sticky, huge."},
+  {id:"juice",name:"Orange juice",emoji:"🍊",price:70,tint:"#ffe0b0",desc:"Squeezed to order."}
+];
+const coupons={SAVE10:10};
+let cart={},discount=0,reports=0;
+const $=id=>document.getElementById(id);
+const rupee=n=>"₹"+Math.round(n);
+const find=id=>products.find(p=>p.id===id);
+
+$("menu").innerHTML=products.map(p=>`<div class="item"><div class="tile" style="background:${p.tint}"><img src="images/${p.id}.jpg" alt="${p.name}" loading="lazy" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
+  <div class="body"><b>${p.name}</b><span class="desc">${p.desc}</span>
+  <div class="buy"><span class="price">${rupee(p.price)}</span><button data-add="${p.id}">Add to cart</button></div></div></div>`).join("");
+
+function total(){
+  let s=0;
+  for(const id in cart){
+    // BUG 3: cake ignores quantity
+    s+= id==="cake" ? find(id).price : find(id).price*cart[id];
+  }
+  return s*(1-discount/100);
+}
+function render(){
+  const ids=Object.keys(cart);
+  $("cart").innerHTML=ids.length?ids.map(id=>{const p=find(id);
+    return `<div class="row"><span class="name">${p.name}<br><small>${rupee(p.price*cart[id])}</small></span>
+    <span class="qty"><button data-dec="${id}" aria-label="Remove one ${p.name}">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Add one ${p.name}">+</button></span></div>`}).join("")
+    :`<div class="empty">Your cart is empty. Add something warm.</div>`;
+  $("total").textContent=rupee(total());
+  // BUG 4: counts distinct products, not quantities
+  const n=ids.length;
+  $("badge").textContent="Cart: "+n+(n===1?" item":" items");
+}
+function say(t,c){$("msg").textContent=t;$("msg").className="msg "+(c||"")}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1600)}
+
+document.addEventListener("click",e=>{
+  const d=e.target.dataset;
+  if(d.add||d.inc){const id=d.add||d.inc;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
+  if(d.dec){cart[d.dec]--;if(cart[d.dec]<1)delete cart[d.dec];render()}
+});
+
+$("apply").addEventListener("click",()=>{
+  const code=$("code").value.trim();               // BUG 6: not uppercased, so "save10" fails
+  if(code!==""&&!(code in coupons)){say("Code not recognised. Check the spelling.","bad");return}
+  discount=coupons[code];                          // BUG 5: empty code gives undefined
+  say(discount+"% off applied","ok");render();
+});
+
+// BUG 1: clearCart is never attached to the button
+function clearCart(){cart={};discount=0;say("");render()}
+
+$("checkout").addEventListener("click",()=>{
+  if(!Object.keys(cart).length){say("Your cart is empty. Add an item first.","bad");return}
+  say("Order placed. Total "+rupee(total())+". Thank you!","ok");
+});
+
+const dlg=$("dlg");
+$("report").addEventListener("click",()=>{$("fmsg").textContent="";dlg.showModal()});
+$("cancel").addEventListener("click",()=>dlg.close());
+$("bugform").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const f=e.target,btn=$("send");btn.disabled=true;$("fmsg").className="msg";$("fmsg").textContent="Sending...";
+  try{
+    const r=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});
+    if(!r.ok)throw 0;
+    reports++;$("rc").textContent="("+reports+" sent)";
+    $("fmsg").className="msg ok";$("fmsg").textContent="Sent, "+f.name.value+" ("+f.usn.value.toUpperCase()+")! A volunteer will confirm it.";
+    f.what.value="";
+  }catch(_){
+    $("fmsg").className="msg bad";$("fmsg").textContent="Could not send. Shout \"Bug!\" and show your screen to a volunteer.";
+  }
+  btn.disabled=false;
+});
+render();
+if(location.hash==="#host")document.body.classList.add("host");
+</script>
+</body>
+</html>
