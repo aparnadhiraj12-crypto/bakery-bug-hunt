@@ -73,6 +73,9 @@ label{display:block;font-weight:500;margin:10px 0 4px}
 #host{display:none;max-width:948px;margin:28px auto 0;background:#fdeccf;border:2px solid var(--peach);border-radius:20px;padding:14px 18px}
 body.host #host{display:block}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+dialog{width:min(520px,94vw);max-height:90vh;overflow:auto}
+fieldset.bug{border:1px solid #e3c9bd;border-radius:14px;margin:14px 0 0;padding:2px 14px 14px}
+fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 6px}
 </style>
 </head>
 <body>
@@ -101,17 +104,8 @@ body.host #host{display:block}
 
 <footer>
   <a href="mailto:hello@aparnaandco.example">Email us</a>
-  <a href="order-status.html">Track your order</a>
   <span>Open 7am to 7pm, every day.</span>
 </footer>
-
-<section id="host">
-  <h2>Host cheat sheet</h2>
-  <p><b>Easy:</b><br>1. "Clear cart" does nothing.<br>2. "Track your order" (footer) goes to a 404 page.</p>
-  <p><b>Medium:</b><br>3. Total counts the Cake slice once, however many are added (add 2+).<br>4. The "Cart: N items" badge counts different products, not quantities (add 2 croissants: it says 1).</p>
-  <p><b>Tricky:</b><br>5. "Apply" with an empty coupon box shows "undefined% off applied" and the total becomes ₹NaN.<br>6. "save10" in lowercase is rejected, although the box says any case works. "SAVE10" works.</p>
-  <p>Reports (name, USN, where, what) arrive in Netlify: Site, Forms, bug-report. Sort by time to see who was first for each bug.</p>
-</section>
 
 <button class="fab" id="report">Found a bug? <span id="rc"></span></button>
 
@@ -119,16 +113,36 @@ body.host #host{display:block}
   <form name="bug-report" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="bugform">
     <input type="hidden" name="form-name" value="bug-report">
     <p class="hp"><label>Leave empty <input name="bot-field"></label></p>
-    <h2>Report a bug</h2>
-    <p>Be specific. The first correct report for each bug wins.</p>
+    <h2>Report your bugs</h2>
+    <p>Put all the bugs you found in this one form, one per box. Bug 1 is required. Be specific: the first correct report for each bug wins.</p>
     <label for="who">Your name</label>
     <input id="who" name="name" required maxlength="40" autocomplete="name">
     <label for="usn">USN</label>
     <input id="usn" name="usn" required minlength="8" maxlength="12" pattern="[A-Za-z0-9]{8,12}" autocapitalize="characters" autocomplete="off" placeholder="e.g. 24BTRSN004" style="text-transform:uppercase">
-    <label for="where">Where did it happen?</label>
-    <select id="where" name="where"><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
-    <label for="what">What went wrong?</label>
-    <textarea id="what" name="what" rows="3" required maxlength="300" placeholder="I did this... and expected this... but got this..."></textarea>
+    <fieldset class="bug"><legend>Bug 1</legend>
+      <label for="w1">Where did it happen?</label>
+      <select id="w1" name="where1" required><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
+      <label for="t1">What went wrong?</label>
+      <textarea id="t1" name="what1" rows="2" required maxlength="300" placeholder="I did this... and expected this... but got this..."></textarea>
+    </fieldset>
+    <fieldset class="bug"><legend>Bug 2 (optional)</legend>
+      <label for="w2">Where did it happen?</label>
+      <select id="w2" name="where2"><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
+      <label for="t2">What went wrong?</label>
+      <textarea id="t2" name="what2" rows="2" maxlength="300" placeholder="Optional. Same format."></textarea>
+    </fieldset>
+    <fieldset class="bug"><legend>Bug 3 (optional)</legend>
+      <label for="w3">Where did it happen?</label>
+      <select id="w3" name="where3"><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
+      <label for="t3">What went wrong?</label>
+      <textarea id="t3" name="what3" rows="2" maxlength="300" placeholder="Optional. Same format."></textarea>
+    </fieldset>
+    <fieldset class="bug"><legend>Bug 4 (optional)</legend>
+      <label for="w4">Where did it happen?</label>
+      <select id="w4" name="where4"><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
+      <label for="t4">What went wrong?</label>
+      <textarea id="t4" name="what4" rows="2" maxlength="300" placeholder="Optional. Same format."></textarea>
+    </fieldset>
     <div class="msg" id="fmsg" role="status"></div>
     <div class="dlg-actions">
       <button type="button" id="cancel">Close</button>
@@ -160,7 +174,7 @@ $("menu").innerHTML=products.map(p=>`<div class="item"><div class="tile" style="
 function total(){
   let s=0;
   for(const id in cart){
-    // BUG 3: cake ignores quantity
+
     s+= id==="cake" ? find(id).price : find(id).price*cart[id];
   }
   return s*(1-discount/100);
@@ -172,8 +186,8 @@ function render(){
     <span class="qty"><button data-dec="${id}" aria-label="Remove one ${p.name}">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Add one ${p.name}">+</button></span></div>`}).join("")
     :`<div class="empty">Your cart is empty. Add something warm.</div>`;
   $("total").textContent=rupee(total());
-  // BUG 4: counts distinct products, not quantities
-  const n=ids.length;
+
+  const n=ids.reduce((a,id)=>a+cart[id],0);
   $("badge").textContent="Cart: "+n+(n===1?" item":" items");
 }
 function say(t,c){$("msg").textContent=t;$("msg").className="msg "+(c||"")}
@@ -181,18 +195,18 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");cle
 
 document.addEventListener("click",e=>{
   const d=e.target.dataset;
-  if(d.add||d.inc){const id=d.add||d.inc;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
+  if(d.add||d.inc){const id=d.add||d.inc;if(d.add&&!cart[id]&&discount)discount=0;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
   if(d.dec){cart[d.dec]--;if(cart[d.dec]<1)delete cart[d.dec];render()}
 });
 
 $("apply").addEventListener("click",()=>{
-  const code=$("code").value.trim();               // BUG 6: not uppercased, so "save10" fails
-  if(code!==""&&!(code in coupons)){say("Code not recognised. Check the spelling.","bad");return}
-  discount=coupons[code];                          // BUG 5: empty code gives undefined
+  const code=$("code").value.trim();
+  if(code===""||!Object.prototype.hasOwnProperty.call(coupons,code)){say(code===""?"Enter a coupon code first.":"Code not recognised. Check the spelling.","bad");return}
+  discount=coupons[code];
   say(discount+"% off applied","ok");render();
 });
 
-// BUG 1: clearCart is never attached to the button
+
 function clearCart(){cart={};discount=0;say("");render()}
 
 $("checkout").addEventListener("click",()=>{
@@ -209,16 +223,15 @@ $("bugform").addEventListener("submit",async e=>{
   try{
     const r=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});
     if(!r.ok)throw 0;
-    reports++;$("rc").textContent="("+reports+" sent)";
+    reports++;$("rc").textContent="(sent)";
     $("fmsg").className="msg ok";$("fmsg").textContent="Sent, "+f.name.value+" ("+f.usn.value.toUpperCase()+")! A volunteer will confirm it.";
-    f.what.value="";
+    f.querySelectorAll("textarea").forEach(t=>t.value="");
   }catch(_){
     $("fmsg").className="msg bad";$("fmsg").textContent="Could not send. Shout \"Bug!\" and show your screen to a volunteer.";
   }
   btn.disabled=false;
 });
 render();
-if(location.hash==="#host")document.body.classList.add("host");
 </script>
 </body>
 </html>
