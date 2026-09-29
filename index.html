@@ -10,7 +10,7 @@
 :root{--bg:#f8ebe0;--ink:#4a2b2b;--muted:#7d5f5c;--card:#fffaf5;--line:#ecd6cb;--accent:#5b3232;--accent-ink:#fff4ec;--mauve:#8f5b5d;--peach:#f2c6b4;--ok:#17703f;--bad:#b3261e}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 "DM Sans",system-ui,sans-serif;padding-bottom:40px}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "DM Sans",system-ui,sans-serif;padding-bottom:96px}
 .top{background:var(--mauve);color:#fff4ec;position:relative;padding-bottom:34px}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:22px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M0 16V9l10-3 8 4 12-5 12 3 13-5 13 4 12-3 15 5 15-5 13 3 15-4 12 4 15-3 10 3V16z' fill='%23f8ebe0'/%3E%3C/svg%3E") repeat-x;background-size:200px 22px}
 .top-in{max-width:980px;margin:0 auto;padding:18px 16px 20px}
@@ -24,7 +24,8 @@ h1 span{color:var(--peach)}
 .hero p{margin:14px 0 20px;max-width:34ch;color:#f3dcd3}
 .cta{display:inline-block;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:500;border-radius:999px;padding:11px 22px}
 .cta:hover{background:#3d2020}
-.plate{justify-self:center;width:min(300px,70vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fffaf5 0 55%,#efe0d3 56% 100%);box-shadow:0 18px 30px rgba(60,25,25,.28);display:grid;place-items:center;font-size:clamp(5rem,16vw,8rem)}
+.plate{justify-self:center;width:min(320px,72vw);aspect-ratio:1;border-radius:50%;overflow:hidden;box-shadow:0 18px 30px rgba(60,25,25,.28);border:8px solid #fffaf5}
+.plate img{width:100%;height:100%;object-fit:cover;display:block}
 @media(max-width:640px){.hero{grid-template-columns:1fr}.plate{order:-1;width:170px}}
 main{max-width:980px;margin:30px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
 @media(max-width:800px){main{grid-template-columns:1fr}}
@@ -58,10 +59,10 @@ input,select,textarea{font:inherit;padding:9px 12px;border:1px solid #cfae9f;bor
 .msg{min-height:1.4em;font-size:.9rem;margin:4px 0 8px}.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
 .total{display:flex;justify-content:space-between;font:400 1.6rem "DM Serif Display",Georgia,serif;margin:8px 0 14px}
 .actions{display:flex;gap:8px}.actions .primary{flex:1}
-footer{max-width:948px;margin:40px auto 0;background:var(--mauve);color:#fbe9e0;border-radius:24px;padding:22px 26px;font-size:.95rem;display:flex;gap:10px 28px;flex-wrap:wrap;align-items:center}
+footer{max-width:948px;margin:40px auto 0;background:var(--mauve);color:#fbe9e0;border-radius:24px;padding:22px 26px;font-size:.95rem;display:flex;gap:10px 28px;flex-wrap:wrap}
 footer a{color:#fff4ec}
-.fab{margin-left:auto;background:var(--peach);color:var(--accent);border:0;border-radius:999px;padding:8px 18px;font-weight:700}
-.fab:hover{background:#fff4ec;color:var(--accent)}
+.fab{position:fixed;right:16px;bottom:16px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:12px 20px;font-weight:700;box-shadow:0 6px 18px rgba(60,25,25,.3);z-index:5}
+.fab:hover{background:#3d2020}
 dialog{border:0;border-radius:24px;padding:24px;width:min(440px,92vw);color:var(--ink);background:var(--card)}
 dialog::backdrop{background:rgba(60,25,25,.55)}
 dialog h2{margin-bottom:4px}dialog p{margin:0 0 12px;color:var(--muted);font-size:.92rem}
@@ -83,7 +84,7 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
   <div class="nav"><div class="logo">Aparna and Co.<small>BAKERY</small></div><div class="badge" id="badge">Cart: 0 items</div></div>
   <div class="hero">
     <div><h1>Baked at 5am,<br>gone by <span>noon.</span></h1><p>Build your box, add a coupon and check out.</p><a class="cta" href="#menu">See today's menu</a></div>
-    <div class="plate" aria-hidden="true">🥐</div>
+    <div class="plate" aria-hidden="true"><img src="images/hero.jpg" alt="Bakery display case full of pastries"></div>
   </div>
 </div></div>
 
@@ -105,8 +106,9 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
 <footer>
   <a href="mailto:hello@aparnaandco.example">Email us</a>
   <span>Open 7am to 7pm, every day.</span>
-  <button class="fab" id="report">Found a bug? <span id="rc"></span></button>
 </footer>
+
+<button class="fab" id="report">Found a bug? <span id="rc"></span></button>
 
 <dialog id="dlg">
   <form name="bug-report" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="bugform">
