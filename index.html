@@ -105,6 +105,7 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
 
 <footer>
   <a href="mailto:hello@aparnaandco.example">Email us</a>
+  <a href="tel:+919845012354">Call us: +91 98450 12345</a>
   <span>Open 7am to 7pm, every day.</span>
 </footer>
 
@@ -115,7 +116,7 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
     <input type="hidden" name="form-name" value="bug-report">
     <p class="hp"><label>Leave empty <input name="bot-field"></label></p>
     <h2>Report your bugs</h2>
-    <p>Put all the bugs you found in this one form, one per box. Bug 1 is required. Be specific: the first correct report for each bug wins.</p>
+    <p>Put all the bugs you found in this one form, one per box. Bug 1 is required; bugs 2 and 3 are optional. Be specific: the first correct report for each bug wins.</p>
     <label for="who">Your name</label>
     <input id="who" name="name" required maxlength="40" autocomplete="name">
     <label for="usn">USN</label>
@@ -137,12 +138,6 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
       <select id="w3" name="where3"><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
       <label for="t3">What went wrong?</label>
       <textarea id="t3" name="what3" rows="2" maxlength="300" placeholder="Optional. Same format."></textarea>
-    </fieldset>
-    <fieldset class="bug"><legend>Bug 4 (optional)</legend>
-      <label for="w4">Where did it happen?</label>
-      <select id="w4" name="where4"><option value="">Choose...</option><option>Menu</option><option>Cart</option><option>Coupon</option><option>Total</option><option>Header or footer</option><option>Other</option></select>
-      <label for="t4">What went wrong?</label>
-      <textarea id="t4" name="what4" rows="2" maxlength="300" placeholder="Optional. Same format."></textarea>
     </fieldset>
     <div class="msg" id="fmsg" role="status"></div>
     <div class="dlg-actions">
@@ -175,8 +170,7 @@ $("menu").innerHTML=products.map(p=>`<div class="item"><div class="tile" style="
 function total(){
   let s=0;
   for(const id in cart){
-
-    s+= id==="cake" ? find(id).price : find(id).price*cart[id];
+    s+=find(id).price*cart[id];
   }
   return s*(1-discount/100);
 }
@@ -188,7 +182,7 @@ function render(){
     :`<div class="empty">Your cart is empty. Add something warm.</div>`;
   $("total").textContent=rupee(total());
 
-  const n=ids.reduce((a,id)=>a+cart[id],0);
+  const n=ids.length;
   $("badge").textContent="Cart: "+n+(n===1?" item":" items");
 }
 function say(t,c){$("msg").textContent=t;$("msg").className="msg "+(c||"")}
@@ -196,12 +190,12 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");cle
 
 document.addEventListener("click",e=>{
   const d=e.target.dataset;
-  if(d.add||d.inc){const id=d.add||d.inc;if(d.add&&!cart[id]&&discount)discount=0;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
-  if(d.dec){cart[d.dec]--;if(cart[d.dec]<1)delete cart[d.dec];render()}
+  if(d.add||d.inc){const id=d.add||d.inc;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
+  if(d.dec){cart[d.dec]--;if(cart[d.dec]<0)delete cart[d.dec];render()}
 });
 
 $("apply").addEventListener("click",()=>{
-  const code=$("code").value.trim();
+  const code=$("code").value.trim().toUpperCase();
   if(code===""||!Object.prototype.hasOwnProperty.call(coupons,code)){say(code===""?"Enter a coupon code first.":"Code not recognised. Check the spelling.","bad");return}
   discount=coupons[code];
   say(discount+"% off applied","ok");render();
@@ -209,6 +203,7 @@ $("apply").addEventListener("click",()=>{
 
 
 function clearCart(){cart={};discount=0;say("");render()}
+$("clear").addEventListener("click",clearCart);
 
 $("checkout").addEventListener("click",()=>{
   if(!Object.keys(cart).length){say("Your cart is empty. Add an item first.","bad");return}
