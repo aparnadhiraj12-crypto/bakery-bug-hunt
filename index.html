@@ -74,6 +74,10 @@ label{display:block;font-weight:500;margin:10px 0 4px}
 .toast.show{opacity:1;transform:translateX(-50%)}
 #host{display:none;max-width:948px;margin:28px auto 0;background:#fdeccf;border:2px solid var(--peach);border-radius:20px;padding:14px 18px}
 body.host #host{display:block}
+#host h2{margin-bottom:6px}
+#host .hb{background:var(--card);border:1px solid var(--mauve);border-radius:12px;margin:10px 0;overflow:hidden}
+#host .hb h3{margin:0;background:var(--mauve);color:#fff;padding:8px 14px;font-size:1rem}
+#host .hb p{margin:0;padding:10px 14px;font-size:.93rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 dialog{width:min(520px,94vw);max-height:90vh;overflow:auto}
 fieldset.bug{border:1px solid #e3c9bd;border-radius:14px;margin:14px 0 0;padding:2px 14px 14px}
@@ -110,6 +114,14 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
   <span>Open 7am to 7pm, every day.</span>
 </footer>
 
+<!-- Host cheat sheet: visible only at ?host=1 -->
+<section id="host" aria-label="Host cheat sheet">
+  <h2>Host cheat sheet</h2>
+  <p>3 bugs in total. Reports (name, USN, where, what) arrive in Netlify: Forms, bug-report. Sort by time to see who was first for each bug.</p>
+  <div class="hb"><h3>Simple</h3><p><b>1.</b> Add 3 of any item (e.g. croissants at ₹80). The row under the item name shows the unit price (₹80) instead of the line total (₹240). The Total at the bottom is still correct. Report location: Cart.</p></div>
+  <div class="hb"><h3>Medium</h3><p><b>2.</b> Apply SAVE10, tap "Clear cart", then add any item. The Total is still 10% off even though the coupon was cleared with the cart and no coupon message is showing. Report location: Coupon or Total.</p></div>
+  <div class="hb"><h3>Hard</h3><p><b>3.</b> In the footer, tap "Call us: +91 98450 12345". The dialer opens with a different number: +91 98450 12<b>354</b> (last 3 digits swapped). Participants have to compare the number shown in the footer with the number the phone dials. Report location: Header or footer.</p></div>
+</section>
 
 <dialog id="dlg">
   <form name="bug-report" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="bugform">
@@ -163,6 +175,8 @@ const $=id=>document.getElementById(id);
 const rupee=n=>"₹"+Math.round(n);
 const find=id=>products.find(p=>p.id===id);
 
+if(new URLSearchParams(location.search).get("host")==="1")document.body.classList.add("host");
+
 $("menu").innerHTML=products.map(p=>`<div class="item"><div class="tile" style="background:${p.tint}"><img src="images/${p.id}.jpg" alt="${p.name}" loading="lazy" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
   <div class="body"><b>${p.name}</b><span class="desc">${p.desc}</span>
   <div class="buy"><span class="price">${rupee(p.price)}</span><button data-add="${p.id}">Add to cart</button></div></div></div>`).join("");
@@ -176,13 +190,14 @@ function total(){
 }
 function render(){
   const ids=Object.keys(cart);
+  // BUG 1 (Simple): row shows unit price, not line total (price*qty)
   $("cart").innerHTML=ids.length?ids.map(id=>{const p=find(id);
-    return `<div class="row"><span class="name">${p.name}<br><small>${rupee(p.price*cart[id])}</small></span>
+    return `<div class="row"><span class="name">${p.name}<br><small>${rupee(p.price)}</small></span>
     <span class="qty"><button data-dec="${id}" aria-label="Remove one ${p.name}">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Add one ${p.name}">+</button></span></div>`}).join("")
     :`<div class="empty">Your cart is empty. Add something warm.</div>`;
   $("total").textContent=rupee(total());
 
-  const n=ids.length;
+  const n=ids.reduce((s,id)=>s+cart[id],0);
   $("badge").textContent="Cart: "+n+(n===1?" item":" items");
 }
 function say(t,c){$("msg").textContent=t;$("msg").className="msg "+(c||"")}
@@ -191,7 +206,7 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");cle
 document.addEventListener("click",e=>{
   const d=e.target.dataset;
   if(d.add||d.inc){const id=d.add||d.inc;cart[id]=(cart[id]||0)+1;render();if(d.add)toast(find(id).name+" added")}
-  if(d.dec){cart[d.dec]--;if(cart[d.dec]<0)delete cart[d.dec];render()}
+  if(d.dec){cart[d.dec]--;if(cart[d.dec]<=0)delete cart[d.dec];render()}
 });
 
 $("apply").addEventListener("click",()=>{
@@ -201,8 +216,8 @@ $("apply").addEventListener("click",()=>{
   say(discount+"% off applied","ok");render();
 });
 
-
-function clearCart(){cart={};discount=0;say("");render()}
+// BUG 2 (Medium): discount is not reset when the cart is cleared
+function clearCart(){cart={};say("");render()}
 $("clear").addEventListener("click",clearCart);
 
 $("checkout").addEventListener("click",()=>{
