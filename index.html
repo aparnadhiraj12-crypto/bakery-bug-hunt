@@ -118,8 +118,8 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
 <section id="host" aria-label="Host cheat sheet">
   <h2>Host cheat sheet</h2>
   <p>3 bugs in total. Reports (name, USN, where, what) arrive in Netlify: Forms, bug-report. Sort by time to see who was first for each bug.</p>
-  <div class="hb"><h3>Simple</h3><p><b>1.</b> Add 3 of any item (e.g. croissants at ₹80). The row under the item name shows the unit price (₹80) instead of the line total (₹240). The Total at the bottom is still correct. Report location: Cart.</p></div>
-  <div class="hb"><h3>Medium</h3><p><b>2.</b> Apply SAVE10, tap "Clear cart", then add any item. The Total is still 10% off even though the coupon was cleared with the cart and no coupon message is showing. Report location: Coupon or Total.</p></div>
+  <div class="hb"><h3>Simple</h3><p><b>1.</b> Add any item, then tap "Clear cart". Nothing happens: the items stay in the cart and the Total does not change. Report location: Cart.</p></div>
+  <div class="hb"><h3>Medium</h3><p><b>2.</b> The coupon field says "try SAVE10, any case", but only the exact uppercase code works. Typing "save10" or "Save10" shows "Code not recognised. Check the spelling." while "SAVE10" gives 10% off. Report location: Coupon.</p></div>
   <div class="hb"><h3>Hard</h3><p><b>3.</b> In the footer, tap "Call us: +91 98450 12345". The dialer opens with a different number: +91 98450 12<b>354</b> (last 3 digits swapped). Participants have to compare the number shown in the footer with the number the phone dials. Report location: Header or footer.</p></div>
 </section>
 
@@ -190,9 +190,8 @@ function total(){
 }
 function render(){
   const ids=Object.keys(cart);
-  // BUG 1 (Simple): row shows unit price, not line total (price*qty)
   $("cart").innerHTML=ids.length?ids.map(id=>{const p=find(id);
-    return `<div class="row"><span class="name">${p.name}<br><small>${rupee(p.price)}</small></span>
+    return `<div class="row"><span class="name">${p.name}<br><small>${rupee(p.price*cart[id])}</small></span>
     <span class="qty"><button data-dec="${id}" aria-label="Remove one ${p.name}">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Add one ${p.name}">+</button></span></div>`}).join("")
     :`<div class="empty">Your cart is empty. Add something warm.</div>`;
   $("total").textContent=rupee(total());
@@ -210,14 +209,14 @@ document.addEventListener("click",e=>{
 });
 
 $("apply").addEventListener("click",()=>{
-  const code=$("code").value.trim().toUpperCase();
+  const code=$("code").value.trim(); // BUG 2 (Medium): no toUpperCase(), so lowercase codes fail even though the hint says any case
   if(code===""||!Object.prototype.hasOwnProperty.call(coupons,code)){say(code===""?"Enter a coupon code first.":"Code not recognised. Check the spelling.","bad");return}
   discount=coupons[code];
   say(discount+"% off applied","ok");render();
 });
 
-// BUG 2 (Medium): discount is not reset when the cart is cleared
-function clearCart(){cart={};say("");render()}
+// BUG 1 (Simple): Clear cart does not actually empty the cart
+function clearCart(){say("");render()}
 $("clear").addEventListener("click",clearCart);
 
 $("checkout").addEventListener("click",()=>{
