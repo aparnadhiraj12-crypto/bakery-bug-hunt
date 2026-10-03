@@ -61,8 +61,9 @@ input,select,textarea{font:inherit;padding:9px 12px;border:1px solid #cfae9f;bor
 .actions{display:flex;gap:8px}.actions .primary{flex:1}
 footer{max-width:948px;margin:40px auto 0;background:var(--mauve);color:#fbe9e0;border-radius:24px;padding:22px 26px;font-size:.95rem;display:flex;gap:10px 28px;flex-wrap:wrap}
 footer a{color:#fff4ec}
-.fab{position:fixed;right:16px;bottom:16px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:12px 20px;font-weight:700;box-shadow:0 6px 18px rgba(60,25,25,.3);z-index:5}
-.fab:hover{background:#3d2020}
+.nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.bugbtn{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 18px;font-weight:700;white-space:nowrap;border:0;font:inherit;font-weight:700;cursor:pointer}
+.bugbtn:hover{background:#3d2020}
 dialog{border:0;border-radius:24px;padding:24px;width:min(440px,92vw);color:var(--ink);background:var(--card)}
 dialog::backdrop{background:rgba(60,25,25,.55)}
 dialog h2{margin-bottom:4px}dialog p{margin:0 0 12px;color:var(--muted);font-size:.92rem}
@@ -81,7 +82,7 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
 </head>
 <body>
 <div class="top"><div class="top-in">
-  <div class="nav"><div class="logo">Aparna and Co.<small>BAKERY</small></div><div class="badge" id="badge">Cart: 0 items</div></div>
+  <div class="nav"><div class="logo">Aparna and Co.<small>BAKERY</small></div><div class="nav-right"><button class="bugbtn" id="report">Found a bug? <span id="rc"></span></button><div class="badge" id="badge">Cart: 0 items</div></div></div>
   <div class="hero">
     <div><h1>Baked at 5am,<br>gone by <span>noon.</span></h1><p>Build your box, add a coupon and check out.</p><a class="cta" href="#menu">See today's menu</a></div>
     <div class="plate" aria-hidden="true"><img src="images/hero.jpg" alt="Bakery display case full of pastries"></div>
@@ -109,7 +110,6 @@ fieldset.bug legend{font:400 1.05rem "DM Serif Display",Georgia,serif;padding:0 
   <span>Open 7am to 7pm, every day.</span>
 </footer>
 
-<button class="fab" id="report">Found a bug? <span id="rc"></span></button>
 
 <dialog id="dlg">
   <form name="bug-report" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="bugform">
